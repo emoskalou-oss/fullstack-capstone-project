@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { urlConfig } from '../../config';
+import { apiRequest } from '../../api';
 import { useAppContext } from '../../context/AuthContext';
 
 export default function LoginPage() {
@@ -16,7 +16,7 @@ export default function LoginPage() {
         setError('');
         setSubmitting(true);
         try {
-            const response = await fetch(`${urlConfig.backendUrl}/api/auth/login`, {
+            const { response, data } = await apiRequest('/api/auth/login', {
                 method: 'POST',
                 headers: {
                     'content-type': 'application/json',
@@ -24,7 +24,6 @@ export default function LoginPage() {
                 },
                 body: JSON.stringify(form),
             });
-            const data = await response.json();
             if (!response.ok) {
                 throw new Error(data.error || `Login failed (HTTP ${response.status})`);
             }

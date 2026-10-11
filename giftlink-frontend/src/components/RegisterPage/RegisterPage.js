@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { urlConfig } from '../../config';
+import { apiRequest } from '../../api';
 import { useAppContext } from '../../context/AuthContext';
 
 export default function RegisterPage() {
@@ -16,12 +16,11 @@ export default function RegisterPage() {
         setError('');
         setSubmitting(true);
         try {
-            const response = await fetch(`${urlConfig.backendUrl}/api/auth/register`, {
+            const { response, data } = await apiRequest('/api/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(form),
             });
-            const data = await response.json();
             if (!response.ok) {
                 throw new Error(data.error || `Registration failed (HTTP ${response.status})`);
             }

@@ -11,6 +11,7 @@ describe('GiftLink home page', () => {
     beforeEach(() => {
         global.fetch = vi.fn().mockResolvedValue({
             ok: true,
+            headers: { get: () => 'application/json; charset=utf-8' },
             json: async () => [],
         });
     });
@@ -31,7 +32,7 @@ describe('GiftLink home page', () => {
         expect(screen.getByRole('heading', { name: /find your next useful thing/i })).toBeInTheDocument();
         expect(await screen.findByText(/there are no gifts available yet/i)).toBeInTheDocument();
         expect(global.fetch).toHaveBeenCalledWith(
-            expect.stringMatching(/\/api\/gifts$/),
+            expect.stringMatching(/^https:\/\/giftlink-backend-9171\.onrender\.com\/api\/gifts$/),
             expect.objectContaining({ signal: expect.any(AbortSignal) })
         );
     });

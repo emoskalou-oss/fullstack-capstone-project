@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { urlConfig } from '../../config';
+import { apiRequest } from '../../api';
 
 function MainPage() {
     const [gifts, setGifts] = useState([]);
@@ -11,11 +11,11 @@ function MainPage() {
         const controller = new AbortController();
         const fetchGifts = async () => {
             try {
-                const response = await fetch(`${urlConfig.backendUrl}/api/gifts`, { signal: controller.signal });
+                const { response, data } = await apiRequest('/api/gifts', { signal: controller.signal });
                 if (!response.ok) {
                     throw new Error(`Unable to load gifts (HTTP ${response.status})`);
                 }
-                setGifts(await response.json());
+                setGifts(data);
             } catch (fetchError) {
                 if (fetchError.name !== 'AbortError') {
                     setError(fetchError.message);

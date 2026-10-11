@@ -63,7 +63,7 @@ npm.cmd install
 npm.cmd start
 ```
 
-The frontend runs at `http://localhost:5173` by default. `VITE_BACKEND_URL` in `giftlink-frontend\.env` points to the API; restart the development server after changing it. The backend's `CORS_ORIGIN` should include `http://localhost:5173` for local development.
+The frontend runs at `http://localhost:5173` by default. `VITE_BACKEND_URL` in `giftlink-frontend\.env` points to the API; restart the development server after changing it. The backend's `CORS_ORIGIN` should include `http://localhost:5173` for local development. When `VITE_BACKEND_URL` is unset, the frontend uses the deployed GiftLink backend at `https://giftlink-backend-9171.onrender.com`. Set `VITE_BACKEND_URL` to the API origin before building if deploying to a different backend; this value is embedded in the frontend build.
 
 To run the sentiment service separately:
 

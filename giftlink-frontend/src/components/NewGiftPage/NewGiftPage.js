@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { urlConfig } from '../../config';
+import { apiRequest } from '../../api';
 
 const categories = ['Living', 'Bedroom', 'Bathroom', 'Kitchen', 'Office'];
 const conditions = ['New', 'Like New', 'Older'];
@@ -24,7 +24,7 @@ export default function NewGiftPage() {
         setError('');
         setSubmitting(true);
         try {
-            const response = await fetch(`${urlConfig.backendUrl}/api/gifts`, {
+            const { response, data } = await apiRequest('/api/gifts', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -32,7 +32,6 @@ export default function NewGiftPage() {
                 },
                 body: JSON.stringify({ ...form, age_years: Number(form.age_years) }),
             });
-            const data = await response.json();
             if (!response.ok) {
                 throw new Error(data.error || `Gift could not be published (HTTP ${response.status})`);
             }

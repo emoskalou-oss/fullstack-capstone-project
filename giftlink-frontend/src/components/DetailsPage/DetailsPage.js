@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { urlConfig } from '../../config';
+import { apiRequest } from '../../api';
 import { useAppContext } from '../../context/AuthContext';
 import './DetailsPage.css';
 
@@ -21,8 +21,8 @@ function DetailsPage() {
             setLoading(true);
             setError('');
             try {
-                const response = await fetch(
-                    `${urlConfig.backendUrl}/api/gifts/${encodeURIComponent(productId)}`,
+                const { response, data } = await apiRequest(
+                    `/api/gifts/${encodeURIComponent(productId)}`,
                     { signal: controller.signal }
                 );
                 if (response.status === 404) {
@@ -32,7 +32,7 @@ function DetailsPage() {
                 if (!response.ok) {
                     throw new Error(`Unable to load gift (HTTP ${response.status})`);
                 }
-                setGift(await response.json());
+                setGift(data);
             } catch (fetchError) {
                 if (fetchError.name !== 'AbortError') {
                     setError(fetchError.message);
@@ -53,8 +53,8 @@ function DetailsPage() {
         setCommentError('');
         setSubmitting(true);
         try {
-            const response = await fetch(
-                `${urlConfig.backendUrl}/api/gifts/${encodeURIComponent(productId)}/comments`,
+            const { response, data } = await apiRequest(
+                `/api/gifts/${encodeURIComponent(productId)}/comments`,
                 {
                     method: 'POST',
                     headers: {
@@ -64,7 +64,6 @@ function DetailsPage() {
                     body: JSON.stringify({ comment }),
                 }
             );
-            const data = await response.json();
             if (!response.ok) {
                 throw new Error(data.error || `Unable to post comment (HTTP ${response.status})`);
             }

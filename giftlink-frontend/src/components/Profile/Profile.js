@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { urlConfig } from '../../config';
+import { apiRequest } from '../../api';
 import { useAppContext } from '../../context/AuthContext';
 import './Profile.css';
 
@@ -24,11 +24,10 @@ const Profile = () => {
         const controller = new AbortController();
         const fetchProfile = async () => {
             try {
-                const response = await fetch(`${urlConfig.backendUrl}/api/auth/me`, {
+                const { response, data } = await apiRequest('/api/auth/me', {
                     headers: { Authorization: `Bearer ${token}` },
                     signal: controller.signal,
                 });
-                const data = await response.json();
                 if (!response.ok) {
                     throw new Error(data.error || 'Unable to load profile');
                 }
@@ -53,7 +52,7 @@ const Profile = () => {
         setError('');
         setMessage('');
         try {
-            const response = await fetch(`${urlConfig.backendUrl}/api/auth/update`, {
+            const { response, data } = await apiRequest('/api/auth/update', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -61,7 +60,6 @@ const Profile = () => {
                 },
                 body: JSON.stringify({ name: updatedName }),
             });
-            const data = await response.json();
             if (!response.ok) {
                 throw new Error(data.error || 'Failed to update profile');
             }

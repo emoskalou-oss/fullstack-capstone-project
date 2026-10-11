@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { urlConfig } from '../../config';
+import { apiRequest } from '../../api';
 import './SearchPage.css';
 
 const categories = ['Living', 'Bedroom', 'Bathroom', 'Kitchen', 'Office'];
@@ -24,13 +24,13 @@ function SearchPage() {
             setLoading(true);
             setError('');
             try {
-                const response = await fetch(`${urlConfig.backendUrl}/api/gifts/search?${searchParams.toString()}`, {
+                const { response, data } = await apiRequest(`/api/gifts/search?${searchParams.toString()}`, {
                     signal: controller.signal,
                 });
                 if (!response.ok) {
                     throw new Error(`Search failed (HTTP ${response.status})`);
                 }
-                setGifts(await response.json());
+                setGifts(data);
             } catch (fetchError) {
                 if (fetchError.name !== 'AbortError') {
                     setError(fetchError.message);

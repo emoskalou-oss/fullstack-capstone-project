@@ -12,6 +12,7 @@ describe('Login form', () => {
         sessionStorage.clear();
         global.fetch = vi.fn().mockResolvedValue({
             ok: true,
+            headers: { get: () => 'application/json; charset=utf-8' },
             json: async () => ({
                 token: 'test-token',
                 user: { name: 'Sam', email: 'sam@example.com' },
@@ -38,7 +39,7 @@ describe('Login form', () => {
         fireEvent.click(screen.getByRole('button', { name: 'Log in' }));
 
         await waitFor(() => expect(global.fetch).toHaveBeenCalled());
-        expect(global.fetch).toHaveBeenCalledWith('/api/auth/login', expect.objectContaining({
+        expect(global.fetch).toHaveBeenCalledWith('https://giftlink-backend-9171.onrender.com/api/auth/login', expect.objectContaining({
             method: 'POST',
             headers: {
                 'content-type': 'application/json',
