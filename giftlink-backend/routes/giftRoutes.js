@@ -1,58 +1,99 @@
-router.get('/', async (req, res) => {
-    try {
-        // Task 1: Connect to MongoDB and store connection to db constant
-        // const db = {{insert code here}}
+const express = require('express');
+const { randomUUID } = require('crypto');
+const router = express.Router();
+const connectToDatabase = require('../models/db');
+const authenticate = require('../middleware/authenticate');
+const { validateGiftInput } = require('../util/giftValidation');
 
-        // Task 2: use the collection() method to retrieve the gift collection
-        // {{insert code here}}
-
-        // Task 3: Fetch all gifts using the collection.find method. Chain with toArray method to convert to JSON array
-        // const gifts = {{insert code here}}
-
-        // Task 4: return the gifts using the res.json method
-        res.json(/* {{insert code here}} */);
-    } catch (e) {
-        console.error('Error fetching gifts:', e);
-        res.status(500).send('Error fetching gifts');
-    }
-});
-
-router.get('/:id', async (req, res) => {
-    try {
-        // Task 1: Connect to MongoDB and store connection to db constant
-        // const db = {{insert code here}}
-
-        // Task 2: use the collection() method to retrieve the gift collection
-        // {{insert code here}}
-
-        const id = req.params.id;
-
-        // Task 3: Find a specific gift by ID using the collection.fineOne method and store in constant called gift
-        // {{insert code here}}
-
-        if (!gift) {
-            return res.status(404).send('Gift not found');
-        }
-
-        res.json(gift);
-    } catch (e) {
-        console.error('Error fetching gift:', e);
-        res.status(500).send('Error fetching gift');
-    }
-});
-
-
-
-// Add a new gift
-router.post('/', async (req, res, next) => {
+router.get('/', async (req, res, next) => {
     try {
         const db = await connectToDatabase();
-        const collection = db.collection("gifts");
-        const gift = await collection.insertOne(req.body);
+        const gifts = await db.collection('gifts').find({}).toArray();
+        res.json(gifts);
+    } catch (error) {
+        next(error);
+    }
+});
 
-        res.status(201).json(gift.ops[0]);
-    } catch (e) {
-        next(e);
+router.get('/:id', async (req, res, next) => {
+    try {
+        const db = await connectToDatabase();
+        const gift = await db.collection('gifts').findOne({ id: req.params.id });
+        if (!gift) {
+            return res.status(404).json({ error: 'Gift not found' });
+        }
+        res.json(gift);
+    } catch (error) {
+        next(error);
+    }
+});
+
+router.post('/', authenticate, async (req, res, next) => {
+    try {
+        const validationError = validateGiftInput(req.body);
+        if (validationError) {
+            return res.status(400).json({ error: validationError });
+        }
+
+        const ageYears = Number(req.body.age_years);
+        const gift = {
+            id: randomUUID(),
+            name: req.body.name.trim(),
+            category: req.body.category,
+            condition: req.body.condition,
+            posted_by: req.user.userId,
+            date_added: Math.floor(Date.now() / 1000),
+            age_years: ageYears,
+            age_days: Math.round(ageYears * 365),
+            description: req.body.description.trim(),
+            comments: [],
+        };
+        if (typeof req.body.image === 'string' && req.body.image.trim()) {
+            gift.image = req.body.image.trim();
+        }
+
+        const db = await connectToDatabase();
+        await db.collection('gifts').insertOne(gift);
+        res.status(201).json(gift);
+    } catch (error) {
+        next(error);
+    }
+});
+
+router.post('/:id/comments', authenticate, async (req, res, next) => {
+    try {
+        const commentText = req.body && typeof req.body.comment === 'string'
+            ? req.body.comment.trim()
+            : '';
+        if (!commentText || commentText.length > 1000) {
+            return res.status(400).json({ error: 'Comment must contain between 1 and 1000 characters' });
+        }
+
+        const db = await connectToDatabase();
+        const users = db.collection('users');
+        const user = await users.findOne(
+            { _id: require('mongodb').ObjectId.createFromHexString(req.user.userId) },
+            { projection: { name: 1 } }
+        );
+        if (!user) {
+            return res.status(401).json({ error: 'Authentication required' });
+        }
+
+        const comment = {
+            author: user.name,
+            comment: commentText,
+            createdAt: new Date().toISOString(),
+        };
+        const result = await db.collection('gifts').updateOne(
+            { id: req.params.id },
+            { $push: { comments: comment } }
+        );
+        if (result.matchedCount === 0) {
+            return res.status(404).json({ error: 'Gift not found' });
+        }
+        res.status(201).json(comment);
+    } catch (error) {
+        next(error);
     }
 });
 

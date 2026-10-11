@@ -1,36 +1,54 @@
-/* Style for image placeholder */
 .image-placeholder-large {
-    /* Task 1 styling */
-    {{insert code here}}
+    min-height: 16rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    background: #f0f3f5;
 }
 
-/* Style for product image */
 .product-image-large {
-    /* Task 2 styling */
-    {{insert code here}}
+    display: block;
+    width: 100%;
+    max-height: 32rem;
+    object-fit: contain;
 }
 
-/* Style for 'no image available' placeholder */
 .no-image-available-large {
-    /* Task 3 styling */
-    {{insert code here}}
+    padding: 4rem 1rem;
+    color: #59636e;
+    text-align: center;
 }
 
-/* Style for card header */
-.card-header {
-    /* Task 4 styling */
-    {{insert code here}}
+.product-details-card .card-header {
+    background: #0056b3;
 }
 
-/* Style for details title */
 .details-title {
-    /* Task 5 styling */
-    {{insert code here}}
+    color: inherit;
 }
 
-/* Style for comments section */
 .comments-section {
-    /* Task 6 styling */
-    {{insert code here}}
+    max-width: 52rem;
 }
 
+.gift-details-list > div {
+    display: grid;
+    grid-template-columns: minmax(8rem, 12rem) 1fr;
+    gap: 1rem;
+    padding: 0.65rem 0;
+    border-bottom: 1px solid #e5e8eb;
+}
+
+.gift-details-list dt,
+.gift-details-list dd {
+    margin: 0;
+}
+
+@media (max-width: 575px) {
+    .gift-details-list > div {
+        grid-template-columns: 1fr;
+        gap: 0.25rem;
+    }
+}

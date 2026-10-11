@@ -2,56 +2,68 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const pinoLogger = require('./logger');
-
+const logger = require('./logger');
 const connectToDatabase = require('./models/db');
-const {loadData} = require("./util/import-mongo/index");
-
+const { validateJwtSecret } = require('./util/jwtSecret');
+const giftRoutes = require('./routes/giftRoutes');
+const searchRoutes = require('./routes/searchRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
-app.use("*",cors());
-const port = 3060;
-
-// Connect to MongoDB; we just do this one time
-connectToDatabase().then(() => {
-    pinoLogger.info('Connected to DB');
-})
-    .catch((e) => console.error('Failed to connect to DB', e));
-
-
-app.use(express.json());
-
-// Route files
-// Gift API Task 1: import the giftRoutes and store in a constant called giftroutes
-//{{insert code here}}
-
-// Search API Task 1: import the searchRoutes and store in a constant called searchRoutes
-//{{insert code here}}
-
-
 const pinoHttp = require('pino-http');
-const logger = require('./logger');
+const port = Number(process.env.PORT) || 3060;
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173,http://localhost:3000')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
 
+app.use(cors({
+    origin(origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+        const error = new Error('Origin is not allowed by CORS');
+        error.status = 403;
+        return callback(error);
+    },
+}));
+app.use(express.json({ limit: '1mb' }));
 app.use(pinoHttp({ logger }));
 
-// Use Routes
-// Gift API Task 2: add the giftRoutes to the server by using the app.use() method.
-//{{insert code here}}
+app.get('/health', (req, res) => res.json({ status: 'ok' }));
+app.use('/api/auth', authRoutes);
+app.use('/api/search', searchRoutes);
+app.use('/api/gifts/search', searchRoutes);
+app.use('/api/gifts', giftRoutes);
 
-// Search API Task 2: add the searchRoutes to the server by using the app.use() method.
-//{{insert code here}}
-
-
-// Global Error Handler
 app.use((err, req, res, next) => {
-    console.error(err);
-    res.status(500).send('Internal Server Error');
+    logger.error({ err }, 'Request failed');
+    const status = Number.isInteger(err.status) ? err.status : 500;
+    res.status(status).json({
+        error: status < 500 ? err.message : 'Internal Server Error',
+    });
 });
 
-app.get("/",(req,res)=>{
-    res.send("Inside the server")
-})
+if (require.main === module) {
+    let jwtConfigurationValid = true;
+    try {
+        validateJwtSecret();
+    } catch (error) {
+        jwtConfigurationValid = false;
+        logger.error({ reason: error.message }, 'Invalid JWT configuration; server will not start');
+        process.exitCode = 1;
+    }
 
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-});
+    if (jwtConfigurationValid) {
+        connectToDatabase()
+            .then(() => {
+                app.listen(port, () => logger.info(`Server listening on port ${port}`));
+            })
+            .catch((error) => {
+                logger.error({ err: error }, 'Failed to connect to MongoDB');
+                process.exitCode = 1;
+            });
+    }
+}
+
+module.exports = app;

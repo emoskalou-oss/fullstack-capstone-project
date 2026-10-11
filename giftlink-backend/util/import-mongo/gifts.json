@@ -81,7 +81,7 @@
     {
       "id": "421",
       "name": "Desk Chair",
-      "category": "Office Furniture",
+      "category": "Office",
       "condition": "Like New",
       "posted_by": "31567",
       "zipcode": "90210",
@@ -94,7 +94,7 @@
     {
       "id": "422",
       "name": "Coffee Table",
-      "category": "Living Room",
+      "category": "Living",
       "condition": "Older",
       "posted_by": "19876",
       "zipcode": "10001",
@@ -133,7 +133,7 @@
     {
       "id": "425",
       "name": "Couch",
-      "category": "Living Room",
+      "category": "Living",
       "condition": "Older",
       "posted_by": "17890",
       "zipcode": "90001",
@@ -159,7 +159,7 @@
     {
       "id": "427",
       "name": "TV Stand",
-      "category": "Living Room",
+      "category": "Living",
       "condition": "Older",
       "posted_by": "31567",
       "zipcode": "90210",
@@ -185,7 +185,7 @@
     {
       "id": "429",
       "name": "Side Table",
-      "category": "Living Room",
+      "category": "Living",
       "condition": "Older",
       "posted_by": "23789",
       "zipcode": "94102",
