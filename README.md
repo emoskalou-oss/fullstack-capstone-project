@@ -1,5 +1,7 @@
 # GiftLink
 
+**Live demo:** https://giftlink-frontend-jml3.onrender.com
+
 GiftLink helps people discover household items shared by their community and lets signed-in members offer gifts and comment on listings.
 
 ## Technology
@@ -29,10 +31,10 @@ GiftLink helps people discover household items shared by their community and let
 
 Start MongoDB using your local installation or a MongoDB service you control. The application does not create a database account or supply a hosted database URI.
 
-In the backend terminal:
+In the backend terminal, from the repository root:
 
 ```powershell
-Set-Location C:\Users\User\Desktop\fullstack-capstone-project\giftlink-backend
+cd giftlink-backend
 Copy-Item .env.sample .env
 ```
 
@@ -54,10 +56,10 @@ npm.cmd start
 
 The API listens on port `3060` by default. The importer upserts records by gift ID, creates a unique index, and can be rerun without duplicating the starter gifts. It preserves records already in MongoDB; it does not delete data. `npm run seed` fails explicitly if the JSON does not contain exactly 16 records or if MongoDB is unavailable.
 
-In another terminal, configure and start the frontend:
+In another terminal, from the repository root, configure and start the frontend:
 
 ```powershell
-Set-Location C:\Users\User\Desktop\fullstack-capstone-project\giftlink-frontend
+cd giftlink-frontend
 Copy-Item .env.sample .env
 npm.cmd install
 npm.cmd start
@@ -65,10 +67,10 @@ npm.cmd start
 
 The frontend runs at `http://localhost:5173` by default. `VITE_BACKEND_URL` in `giftlink-frontend\.env` points to the API; restart the development server after changing it. The backend's `CORS_ORIGIN` should include `http://localhost:5173` for local development. When `VITE_BACKEND_URL` is unset, the frontend uses the deployed GiftLink backend at `https://giftlink-backend-9171.onrender.com`. Set `VITE_BACKEND_URL` to the API origin before building if deploying to a different backend; this value is embedded in the frontend build.
 
-To run the sentiment service separately:
+To run the sentiment service separately, from the repository root:
 
 ```powershell
-Set-Location C:\Users\User\Desktop\fullstack-capstone-project\sentiment
+cd sentiment
 npm.cmd install
 npm.cmd start
 ```
@@ -112,16 +114,20 @@ Keep real `.env` files and variants such as `.env.production`, `.env.development
 
 ## Tests and production build
 
-Run each package's tests from its directory:
+Run each package's tests from the repository root:
 
 ```powershell
-Set-Location C:\Users\User\Desktop\fullstack-capstone-project\giftlink-backend
+cd giftlink-backend
 npm.cmd test
+```
 
-Set-Location C:\Users\User\Desktop\fullstack-capstone-project\sentiment
+```powershell
+cd sentiment
 npm.cmd test
+```
 
-Set-Location C:\Users\User\Desktop\fullstack-capstone-project\giftlink-frontend
+```powershell
+cd giftlink-frontend
 npm.cmd test -- --watchAll=false
 npm.cmd run build
 ```
@@ -151,14 +157,12 @@ The GitHub Actions workflow runs backend and sentiment tests, frontend tests, an
 
 ## Deployment
 
-No hosting provider or production database is configured in this repository, and the application has not been deployed. A compatible approach is MongoDB Atlas for MongoDB, Render Web Services for the Node API and sentiment service, and a Render Static Site (or equivalent static host) for the React build.
+The application is deployed on Render.
 
-1. Create a MongoDB Atlas database and a least-privilege application user; restrict network access to the selected host where supported. Keep its connection URI private.
-2. In Render, create a **Web Service** from the repository with root directory `giftlink-backend`, build command `npm ci`, and start command `npm start`. Configure `MONGO_URL`, a newly generated `JWT_SECRET`, `PORT` (use the provider's assigned port if required), and `CORS_ORIGIN` with the exact deployed frontend origin.
-3. Run `npm run seed` once against the configured database using the host's shell or a trusted local environment with the same `MONGO_URL`. Confirm the resulting gift count in MongoDB before claiming the import succeeded.
-4. In Render, create a second **Web Service** with root directory `sentiment`, build command `npm ci`, and start command `npm start`. Set a service port if the host requires it.
-5. Create a **Static Site** with root directory `giftlink-frontend`, build command `npm ci && npm run build`, and publish directory `dist`. Set `VITE_BACKEND_URL` to the real API origin before building. Add a rewrite from `/*` to `/index.html` with status `200` so React Router URLs resolve. Configure the API's `CORS_ORIGIN` to the real frontend origin.
-6. After deployment, verify the provider's health/status, the gift API and browser flows, then capture evidence from the actual live URLs. No production URL, import, or hosted CI run is claimed by this repository setup.
+- Frontend: https://giftlink-frontend-jml3.onrender.com
+- Backend: https://giftlink-backend-9171.onrender.com
+
+Note: Render's free plan puts the services to sleep, so the first load can take 30 to 60 seconds.
 
 ## GitHub user stories
 
