@@ -161,6 +161,7 @@ The application is deployed on Render.
 
 - Frontend: https://giftlink-frontend-jml3.onrender.com
 - Backend: https://giftlink-backend-9171.onrender.com
+- Database: MongoDB Atlas
 
 Note: Render's free plan puts the services to sleep, so the first load can take 30 to 60 seconds.
 
