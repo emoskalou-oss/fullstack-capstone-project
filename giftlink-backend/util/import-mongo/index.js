@@ -1,6 +1,7 @@
-require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
+
 const connectToDatabase = require('../../models/db');
 const { validateGiftInput } = require('../../util/giftValidation');
 const { closeDatabase } = connectToDatabase;
